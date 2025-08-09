@@ -161,7 +161,7 @@ public class CreditSimulatorApplication {
 						}
 					}
 					case 5 -> {
-
+						System.out.println(creditService.instructionCredit());
 					}
 					case 6 -> {
 						running = false;

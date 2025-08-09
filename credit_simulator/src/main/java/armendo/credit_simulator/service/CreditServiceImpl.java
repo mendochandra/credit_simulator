@@ -220,4 +220,21 @@ public class CreditServiceImpl implements CreditService{
 
         return createCreditSimulation(credit);
     }
+
+    @Override
+    public String instructionCredit() throws Exception {
+        String instruction = """
+        ==== Instruction ====
+        1. Create Calculation Credit
+           - Membuat simulasi kredit baru dengan memasukkan jenis kendaraan, kondisi, tahun, total pinjaman, tenor, dan DP.
+        2. Load Existing Calculation
+           - Memuat data simulasi kredit dari web service, lalu menghitung hasilnya otomatis.
+        3. Download Sheet Credit
+           - Mengunduh hasil simulasi kredit dalam format Excel yang berasal dari semua create simulation credit.
+        4. Input Credit from Txt
+           - Mengimpor data kredit dari file .txt berformat JSON, lalu menghitung cicilan otomatis.
+             Pastikan semua input sesuai format agar proses berjalan lancar.
+        """;
+        return instruction;
+    }
 }
