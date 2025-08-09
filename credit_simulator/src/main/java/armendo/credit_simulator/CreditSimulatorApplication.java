@@ -143,7 +143,11 @@ public class CreditSimulatorApplication {
 						}
 					}
 					case 2 -> {
+						List<String> result =  creditService.loadExisting();
 
+						for (String s : result) {
+							System.out.println(s);
+						}
 					}
 					case 3 -> {
 

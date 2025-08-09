@@ -51,6 +51,15 @@
 			<version>1.18.34</version> <!-- versi terbaru per 2025 -->
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>io.vertx</groupId>
+			<artifactId>vertx-core</artifactId>
+			<version>4.5.1</version> <!-- use latest stable -->
+		</dependency>
 	</dependencies>
 
 	<build>

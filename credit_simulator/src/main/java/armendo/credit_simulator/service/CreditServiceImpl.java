@@ -2,13 +2,18 @@ package armendo.credit_simulator.service;
 
 import armendo.credit_simulator.model.Credit;
 import armendo.credit_simulator.repository.CreditRepository;
+import io.vertx.core.json.JsonObject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.time.Year;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -20,11 +25,16 @@ public class CreditServiceImpl implements CreditService{
 
     private final CreditRepository creditRepository;
 
+    private final HttpClient httpClient = HttpClient.newHttpClient();
+
     @Override
     public List<String> createCreditSimulation(Credit req) {
 
         creditRepository.save(req);
+        return calculationCredit(req);
+    }
 
+    private List<String> calculationCredit(Credit req) {
         BigDecimal totalLoan = BigDecimal.valueOf(req.getTotalLoanAmount());
         BigDecimal dp = BigDecimal.valueOf(req.getDownPayment());
         BigDecimal principal = totalLoan.subtract(dp);
@@ -58,7 +68,6 @@ public class CreditServiceImpl implements CreditService{
 
             if (principal.compareTo(BigDecimal.ZERO) == 0) break;
         }
-
         return results;
     }
 
@@ -103,8 +112,29 @@ public class CreditServiceImpl implements CreditService{
     }
 
     @Override
-    public List<String>  loadExisting(Credit credit) {
-//        https://kmr60.wiremockapi.cloud/v3/9108b1da-beec-409e-ae14-e8091955666c
-        return null;
+    public List<String>  loadExisting() throws IOException, InterruptedException {
+        String url = "https://kmr60.wiremockapi.cloud/v3/9108b1da-beec-409e-ae14-e8091955666c";
+        JsonObject hitThirdParties = hitThirdPartyApi(url);
+
+        Credit req = new Credit();
+        req.setVehicleType(hitThirdParties.getString("vehicleType"));
+        req.setVehicleCondition(hitThirdParties.getString("vehicleCondition"));
+        req.setVehicleYear(Integer.valueOf(hitThirdParties.getString("vehicleYear")));
+        req.setTotalLoanAmount(Integer.valueOf(hitThirdParties.getString("totalLoanAmount")));
+        req.setLoanTenure(Integer.valueOf(hitThirdParties.getString("loanTenure")));
+        req.setDownPayment(Integer.valueOf(hitThirdParties.getString("downPayment")));
+        return calculationCredit(req);
+    }
+
+    public JsonObject hitThirdPartyApi(String url) throws IOException, InterruptedException {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .header("Accept", "application/json")
+                .GET()
+                .build();
+
+        HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+
+        return new JsonObject(response.body());
     }
 }
