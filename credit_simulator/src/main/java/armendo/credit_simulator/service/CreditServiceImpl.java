@@ -2,6 +2,7 @@ package armendo.credit_simulator.service;
 
 import armendo.credit_simulator.model.Credit;
 import armendo.credit_simulator.repository.CreditRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vertx.core.json.JsonObject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +38,8 @@ public class CreditServiceImpl implements CreditService{
     private final HttpClient httpClient = HttpClient.newHttpClient();
 
     private final Path exportDir = Paths.get("exports");
+
+    private final ObjectMapper objectMapper;
 
     @Override
     public List<String> createCreditSimulation(Credit req) {
@@ -204,5 +208,16 @@ public class CreditServiceImpl implements CreditService{
         }else {
             return "http://localhost:8080/api/credit/download/" + fileName;
         }
+    }
+
+    @Override
+    public List<String> createCreditSimulationTxtFile(String filePath) throws Exception {
+        // 1. Baca isi file txt
+        String json = Files.readString(Paths.get(filePath));
+
+        // 2. Parse JSON ke Credit
+        Credit credit = objectMapper.readValue(json, Credit.class);
+
+        return createCreditSimulation(credit);
     }
 }

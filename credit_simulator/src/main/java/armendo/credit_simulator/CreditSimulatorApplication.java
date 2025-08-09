@@ -153,7 +153,12 @@ public class CreditSimulatorApplication {
 						System.out.println(outputLink);
 					}
 					case 4 -> {
-
+						System.out.print("Input your directory of txt file: ");
+						String directory = scanner.nextLine();
+						List<String> result = creditService.createCreditSimulationTxtFile(directory);
+						for (String s : result) {
+							System.out.println(s);
+						}
 					}
 					case 5 -> {
 
