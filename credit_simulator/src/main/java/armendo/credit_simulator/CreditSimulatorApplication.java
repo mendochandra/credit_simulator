@@ -29,8 +29,9 @@ public class CreditSimulatorApplication {
 				System.out.println("1. Create Calculation Credit");
 				System.out.println("2. Load Existing Calculation");
 				System.out.println("3. Download sheet credit");
-				System.out.println("4. Instruction");
-				System.out.println("5. Exit");
+				System.out.println("4. Input Credit from Txt");
+				System.out.println("5. Instruction");
+				System.out.println("6. Exit");
 				System.out.print("Choose option: ");
 
 				int choice = Integer.parseInt(scanner.nextLine());
@@ -148,12 +149,16 @@ public class CreditSimulatorApplication {
 						}
 					}
 					case 3 -> {
-
+						String outputLink = creditService.createCalculationExcelAndGetLink();
+						System.out.println(outputLink);
 					}
 					case 4 -> {
 
 					}
 					case 5 -> {
+
+					}
+					case 6 -> {
 						running = false;
 						System.out.println("Goodbye!");
 					}

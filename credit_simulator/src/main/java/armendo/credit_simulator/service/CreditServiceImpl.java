@@ -5,8 +5,13 @@ import armendo.credit_simulator.repository.CreditRepository;
 import io.vertx.core.json.JsonObject;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -14,6 +19,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -26,6 +34,8 @@ public class CreditServiceImpl implements CreditService{
     private final CreditRepository creditRepository;
 
     private final HttpClient httpClient = HttpClient.newHttpClient();
+
+    private final Path exportDir = Paths.get("exports");
 
     @Override
     public List<String> createCreditSimulation(Credit req) {
@@ -136,5 +146,63 @@ public class CreditServiceImpl implements CreditService{
         HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
 
         return new JsonObject(response.body());
+    }
+
+    @Override
+    public String createCalculationExcelAndGetLink() throws IOException {
+
+        List<Credit> allCredits = creditRepository.findAll();
+
+        if (!Files.exists(exportDir)) {
+            Files.createDirectories(exportDir);
+        }
+
+        String fileName = "all_calculations_" + System.currentTimeMillis() + ".xlsx";
+        Path filePath = exportDir.resolve(fileName);
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("All Calculations");
+
+            int rowNum = 0;
+            // Header
+            Row header = sheet.createRow(rowNum++);
+            header.createCell(0).setCellValue("Vehicle Type");
+            header.createCell(1).setCellValue("Vehicle Condition");
+            header.createCell(2).setCellValue("Vehicle Year");
+            header.createCell(3).setCellValue("Total Loan Amount");
+            header.createCell(4).setCellValue("Loan Tenure");
+            header.createCell(5).setCellValue("Down Payment");
+            header.createCell(6).setCellValue("Calculation Results");
+
+            // Data rows
+            for (Credit credit : allCredits) {
+                List<String> calculationResults = createCreditSimulation(credit); // kalkulasi
+
+                Row row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(credit.getVehicleType());
+                row.createCell(1).setCellValue(credit.getVehicleCondition());
+                row.createCell(2).setCellValue(credit.getVehicleYear());
+                row.createCell(3).setCellValue(credit.getTotalLoanAmount().doubleValue());
+                row.createCell(4).setCellValue(credit.getLoanTenure());
+                row.createCell(5).setCellValue(credit.getDownPayment().doubleValue());
+                row.createCell(6).setCellValue(String.join("\n", calculationResults)); // gabungkan perhitungan jadi 1 cell
+            }
+
+            // Autosize kolom
+            for (int i = 0; i <= 6; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            // Simpan file
+            try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
+                workbook.write(fos);
+            }
+        }
+
+        if (allCredits.isEmpty()){
+            return ("Please create credit simulation first");
+        }else {
+            return "http://localhost:8080/api/credit/download/" + fileName;
+        }
     }
 }
