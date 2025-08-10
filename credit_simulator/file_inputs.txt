@@ -1,0 +1,8 @@
+{
+    "vehicleType": "Mobil",
+    "vehicleCondition": "Baru",
+    "vehicleYear": 2025,
+    "totalLoanAmount": 1000000000,
+    "loanTenure": 6,
+    "downPayment": 500000000
+}

@@ -9,8 +9,15 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
+# Copy project
 COPY . .
 
+# Copy sample file input into container
+COPY file_inputs.txt /app/file_inputs.txt
+
+# Build project
 RUN ./mvnw clean package -DskipTests
 
-CMD ["java", "-jar", "target/credit_simulator-0.0.1-SNAPSHOT.jar"]
+# Set entrypoint and default command
+ENTRYPOINT ["java", "-jar", "target/credit_simulator-0.0.1-SNAPSHOT.jar"]
+CMD []
