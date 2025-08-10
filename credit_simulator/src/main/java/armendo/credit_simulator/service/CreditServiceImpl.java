@@ -240,7 +240,7 @@ public class CreditServiceImpl implements CreditService{
 
         int responseCode = conn.getResponseCode();
         if (responseCode == 201 || responseCode == 200) {
-            return "https://raw.githubusercontent.com/" + githubRepo + "/" + branch + "/exports/" + fileName;
+            return "copy link ini ke browser anda\n"+ "https://raw.githubusercontent.com/" + githubRepo + "/" + branch + "/exports/" + fileName;
         } else {
             throw new IOException("Failed to upload file to GitHub. Response code: " + responseCode);
         }
