@@ -1,13 +1,16 @@
 FROM openjdk:17-jdk-slim
 
-# Set working directory
+# Install fonts and dependencies for Apache POI autoSizeColumn
+RUN apt-get update && apt-get install -y \
+    fontconfig \
+    libfreetype6 \
+    libfreetype6-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /app
 
-# Copy project files
 COPY . .
 
-# Build project (pakai Maven)
 RUN ./mvnw clean package -DskipTests
 
-# Jalankan aplikasi
 CMD ["java", "-jar", "target/credit_simulator-0.0.1-SNAPSHOT.jar"]
