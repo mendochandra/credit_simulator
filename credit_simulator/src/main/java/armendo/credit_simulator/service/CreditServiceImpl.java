@@ -163,7 +163,6 @@ public class CreditServiceImpl implements CreditService{
 
         String fileName = "all_calculations_" + System.currentTimeMillis() + ".xlsx";
         Path filePath = exportDir.resolve(fileName);
-
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("All Calculations");
 
