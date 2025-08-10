@@ -14,9 +14,12 @@ import org.springframework.stereotype.Service;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.HttpURLConnection;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -25,6 +28,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
 
@@ -154,15 +158,14 @@ public class CreditServiceImpl implements CreditService{
 
     @Override
     public String createCalculationExcelAndGetLink() throws IOException {
-
         List<Credit> allCredits = creditRepository.findAll();
 
         if (!Files.exists(exportDir)) {
             Files.createDirectories(exportDir);
         }
-
         String fileName = "all_calculations_" + System.currentTimeMillis() + ".xlsx";
         Path filePath = exportDir.resolve(fileName);
+
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("All Calculations");
 
@@ -202,12 +205,48 @@ public class CreditServiceImpl implements CreditService{
             }
         }
 
-        if (allCredits.isEmpty()){
-            return ("Please create credit simulation first");
-        }else {
-            return "http://localhost:8080/api/credit/download/" + fileName;
+        if (allCredits.isEmpty()) {
+            return "Please create credit simulation first";
+        } else {
+            return uploadToGitHub(filePath, fileName);
         }
     }
+
+    private String uploadToGitHub(Path filePath, String fileName) throws IOException {
+
+        String githubToken = System.getenv("GITHUB_TOKEN"); // simpan token di env
+        String githubRepo = "mendochandra/credit_simulator";
+        String branch = "main";
+
+        byte[] fileBytes = Files.readAllBytes(filePath);
+        String base64Content = Base64.getEncoder().encodeToString(fileBytes);
+
+        String jsonPayload = String.format(
+                "{ \"message\": \"Add %s\", \"content\": \"%s\", \"branch\": \"%s\" }",
+                fileName, base64Content, branch
+        );
+
+        URL url = new URL("https://api.github.com/repos/" + githubRepo + "/contents/exports/" + fileName);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("PUT");
+        conn.setRequestProperty("Authorization", "token " + githubToken);
+        conn.setRequestProperty("Accept", "application/vnd.github.v3+json");
+        conn.setDoOutput(true);
+
+        try (OutputStream os = conn.getOutputStream()) {
+            byte[] input = jsonPayload.getBytes(StandardCharsets.UTF_8);
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = conn.getResponseCode();
+        if (responseCode == 201 || responseCode == 200) {
+            return "https://raw.githubusercontent.com/" + githubRepo + "/" + branch + "/exports/" + fileName;
+        } else {
+            throw new IOException("Failed to upload file to GitHub. Response code: " + responseCode);
+        }
+    }
+
+
 
     @Override
     public List<String> createCreditSimulationTxtFile(String filePath) throws Exception {
