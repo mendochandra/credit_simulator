@@ -246,19 +246,6 @@ public class CreditServiceImpl implements CreditService{
         }
     }
 
-
-
-    @Override
-    public List<String> createCreditSimulationTxtFile(String filePath) throws Exception {
-        // 1. Baca isi file txt
-        String json = Files.readString(Paths.get(filePath));
-
-        // 2. Parse JSON ke Credit
-        Credit credit = objectMapper.readValue(json, Credit.class);
-
-        return createCreditSimulation(credit);
-    }
-
     @Override
     public String instructionCredit() throws Exception {
         String instruction = """
@@ -269,9 +256,6 @@ public class CreditServiceImpl implements CreditService{
            - Memuat data simulasi kredit dari web service, lalu menghitung hasilnya otomatis.
         3. Download Sheet Credit
            - Mengunduh hasil simulasi kredit dalam format Excel yang berasal dari semua create simulation credit.
-        4. Input Credit from Txt
-           - Mengimpor data kredit dari file .txt berformat JSON, lalu menghitung cicilan otomatis.
-             Pastikan semua input sesuai format agar proses berjalan lancar.
         """;
         return instruction;
     }

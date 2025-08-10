@@ -11,7 +11,6 @@ public interface CreditService {
     List<String> createCreditSimulation(Credit req);
     List<String>  loadExisting() throws IOException, InterruptedException;
     String createCalculationExcelAndGetLink() throws IOException;
-    List<String> createCreditSimulationTxtFile(String filePath) throws Exception;
     String instructionCredit() throws Exception;
 
 }

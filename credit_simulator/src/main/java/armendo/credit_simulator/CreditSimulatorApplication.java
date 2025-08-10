@@ -29,9 +29,8 @@ public class CreditSimulatorApplication {
 				System.out.println("1. Create Calculation Credit");
 				System.out.println("2. Load Existing Calculation");
 				System.out.println("3. Download sheet credit");
-				System.out.println("4. Input Credit from Txt");
-				System.out.println("5. Instruction");
-				System.out.println("6. Exit");
+				System.out.println("4. Instruction");
+				System.out.println("5. Exit");
 				System.out.print("Choose option: ");
 
 				int choice = Integer.parseInt(scanner.nextLine());
@@ -153,17 +152,9 @@ public class CreditSimulatorApplication {
 						System.out.println(outputLink);
 					}
 					case 4 -> {
-						System.out.print("Input your directory of txt file: ");
-						String directory = scanner.nextLine();
-						List<String> result = creditService.createCreditSimulationTxtFile(directory);
-						for (String s : result) {
-							System.out.println(s);
-						}
-					}
-					case 5 -> {
 						System.out.println(creditService.instructionCredit());
 					}
-					case 6 -> {
+					case 5 -> {
 						running = false;
 						System.out.println("Goodbye!");
 					}
