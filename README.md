@@ -6,6 +6,8 @@ Aplikasi menggunakan Java dengan framework spring boot
 🚀 Cara Menjalankan Aplikasi
 Berikut langkah-langkah untuk menjalankan aplikasi:
 - pada cmd gunakan syntax untuk pull images docker : docker pull ghcr.io/mendochandra/credit_simulator:latest
+ jika menggunakan mac book bisa : docker run --platform linux/amd64 ghcr.io/mendochandra/credit_simulator:latest
+
 - aplikasi ini bisa dijalankan dengan 2 metode yaitu
 1. dengan menggunakan syntax pada cmd console kalian : docker run -it --env-file .env credit_simulator
 2. dengan menggunakan syntax pada cmd console kalian : docker run -it credit_simulator file_inputs.txt 
